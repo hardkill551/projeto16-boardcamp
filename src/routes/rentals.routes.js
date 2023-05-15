@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteRentals, getRentals, postRentals, postRentalsById } from "../../controllers/rentals.controllers.js";
+import { deleteRentals, getRentals, postRentals, postRentalsById } from "../controllers/rentals.controllers.js";
 import validateSchema from "../middlewares/validateSchema.middlewares.js";
 import { rentalSchema } from "../schemas/games.schema.js";
 
