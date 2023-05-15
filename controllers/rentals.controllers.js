@@ -23,12 +23,12 @@ export async function postRentals(req,res){
     try{
         const games = await db.query(`SELECT * FROM games WHERE games.id = $1`, [gameId])
         if(games.rowCount===0) return res.sendStatus(400)
-        if(games.rows[0].stockTotal>0) return res.sendStatus(400)
+        if(games.rows[0].stockTotal===0) return res.sendStatus(400)
         const originalPrice = daysRented * games.rows[0].pricePerDay
         const sameuser = await db.query(`SELECT * FROM customers WHERE customers.id = $1`, [customerId])
         if(sameuser.rowCount===0) return res.sendStatus(400)
 
-        await db.query(`INSERT INTO rentals (customerId, gameId, daysRented, rentDate, originalPrice) VALUES ($1, $2, $3, $4, $5)`, [customerId, gameId, daysRented, rentDate, originalPrice])
+        await db.query(`INSERT INTO rentals ("customerId", "gameId", "daysRented", "rentDate", "originalPrice") VALUES ($1, $2, $3, $4, $5)`, [customerId, gameId, daysRented, rentDate, originalPrice])
         res.sendStatus(201)
     } catch(err){
         res.status(500).send(err.message)
