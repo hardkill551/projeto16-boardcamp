@@ -14,3 +14,8 @@ export const customerSchema = joi.object({
     cpf: joi.string().min(11).max(11).required(),
     birthday: joi.string().required()
 })
+export const rentalSchema = joi.object({
+    customerId:joi.number().required(),
+    gameId: joi.number().required(),
+    daysRented: joi.number().min(1).required(),
+})
