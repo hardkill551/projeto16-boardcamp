@@ -82,11 +82,16 @@ export async function postRentalsById(req,res){
     }
 }
 export async function deleteRentals(req,res){
-
+    const {id} = req.params
     
     try{
         
-    } catch(err){
+        const verify = await db.query(`SELECT rentals.id, rentals.returnDate FROM rentals WHERE rentals.id = $1`, [id])
+        if(verify.rowCount===0) return res.sendStatus(404)
+        if(verify.rows.returnDate === null) return res.sendStatus(400)
+        await db.query("DELETE FROM rentals WHERE rentals.id = $1", [id])
+        res.sendStatus(200)
+    } catch(err){ 
         res.status(500).send(err.message)
     }
 }
