@@ -26,3 +26,16 @@ export async function postCustomers(req, res){
         res.status(500).send(err.message)
     }
 }
+
+export async function getCustomersById(req,res){
+    const {id} = req.params
+    
+    try{
+        const user = await db.query("SELECT * FROM customers WHERE customers.id = $1",[id])
+        if(user.rowCount===0) return res.sendStatus(404)
+        res.send(user.rows)
+    }
+    catch(err){
+        res.status(500).send(err.message)
+    }
+}
