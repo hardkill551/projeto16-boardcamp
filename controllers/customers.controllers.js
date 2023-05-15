@@ -59,12 +59,16 @@ export async function putCustomersById(req,res){
     if(test==="Invalid Date"){
         return res.sendStatus(400)
     }
+    if(isNaN(cpf)) return res.sendStatus(400)
     try{
         const user = await db.query("SELECT * FROM customers WHERE customers.id = $1", [id])
         const sameUser = await db.query("SELECT * FROM customers WHERE customers.cpf = $1", [cpf])
-        if(sameUser.rowCount !== 0 && user.rows.id!==sameUser.rows.id) return res.sendStatus(409)
+
+
+        if(sameUser.rowCount !== 0 && user.rows[0].id!==sameUser.rows[0].id) return res.sendStatus(409)
+
         await db.query("UPDATE customers SET name = $1, phone = $2, cpf = $3, birthday = $4 WHERE customers.id = $5",[name, phone, cpf, birthday, id])
-        res.sendStatus(201)
+        res.sendStatus(200)
     }
     catch(err){
         res.status(500).send(err.message)
