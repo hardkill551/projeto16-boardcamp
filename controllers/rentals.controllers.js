@@ -37,15 +37,29 @@ export async function postRentals(req,res){
 }
 
 export async function postRentalsById(req,res){
+    const {id} = req.params
+    const returnDate = dayjs().format("YYYY-MM-DD")
     try{
-
+        const games = await db.query(`SELECT games."pricePerDay", rentals."rentDate", rentals."daysRented" FROM rentals JOIN games ON games.id = rentals."gameId" WHERE rentals.id = $1`, [id])
+        const nowDate = Date.parse(dayjs())/86400000
+        const rentDate = Date.parse(games.rows[0].rentDate)/86400000
+        const rentDays =  nowDate-rentDate
+        const delay = games.rows[0].daysRented-rentDays
+        const delayFee = null
+        if(delay>=1) delayFee = games.rows[0].pricePerDay*(delay)
+        const rent = await db.query("SELECT * FROM rentals WHERE rentals.id = $1", [id])
+        if(rent.rowCount === 0) return res.sendStatus(404)
+        if(rent.rows[0].returnDate!==null) return res.sendStatus(400)
+        await db.query("UPDATE rentals SET returnDate = $1, delayFee = $2 WHERE rentals.id = $3",[returnDate, delayFee,id])
     } catch(err){
         res.status(500).send(err.message)
     }
 }
 export async function deleteRentals(req,res){
-    try{
 
+    
+    try{
+        
     } catch(err){
         res.status(500).send(err.message)
     }
