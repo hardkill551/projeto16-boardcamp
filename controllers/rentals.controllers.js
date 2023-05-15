@@ -3,14 +3,32 @@ import dayjs from 'dayjs';
 
 export async function getRentals(req,res){
     try{
-        const rentals = await db.query(`SELECT rentals.*, customers.* AS customer, games.* AS game
+        const rentals = await db.query(`SELECT rentals.*, customers.id AS "idCustomer", customers.name AS "nameCustomer", games.id AS "idGame", games.name AS "nameGame"
         FROM rentals
         JOIN customers
         ON rentals."customerId" = customers.id
         JOIN games
         ON rentals."gameId" = games.id
         `)
-        res.send(rentals.rows)
+        const x = rentals.rows.map((o)=>({
+            ...o, customer:{
+                id:o.idCustomer,
+                name:o.nameCustomer
+            },
+            game:{
+                id:o.idGame,
+                name:o.nameGame
+            }
+        }))
+        x.map((o)=>{
+            delete o.nameCustomer
+            delete o.idCustomer
+            delete o.idGame
+            delete  o.nameGame
+        })
+        
+ 
+        res.send(x)
     } catch(err){
         res.status(500).send(err.message)
     }
@@ -24,7 +42,8 @@ export async function postRentals(req,res){
         const games = await db.query(`SELECT * FROM games WHERE games.id = $1`, [gameId])
         if(games.rowCount===0) return res.sendStatus(400)
         const rentalsGames = await db.query(`SELECT * FROM rentals JOIN games ON rentals."gameId" = $1 WHERE rentals."gameId" = games.id`, [gameId])
-        if(games.rows[0].stockTotal<rentalsGames.rowCount) return res.sendStatus(400)
+        if(games.rows[0].stockTotal<=rentalsGames.rowCount) return res.sendStatus(400)
+        
         const originalPrice = daysRented * games.rows[0].pricePerDay
         const sameuser = await db.query(`SELECT * FROM customers WHERE customers.id = $1`, [customerId])
         if(sameuser.rowCount===0) return res.sendStatus(400)
