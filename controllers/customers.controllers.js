@@ -45,7 +45,7 @@ export async function getCustomersById(req,res){
             birthday: new Date(o.birthday).toISOString().split("T")[0]
 
         }))
-        res.send(user.rows)
+        res.send(user.rows[0])
     }
     catch(err){
         res.status(500).send(err.message)
