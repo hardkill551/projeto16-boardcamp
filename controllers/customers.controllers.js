@@ -1,4 +1,4 @@
-import db from '../database/database.connection.js';
+import db from '../src/database/database.connection.js';
 import dayjs from "dayjs"
 export async function getCustomers(req,res){
     try{
