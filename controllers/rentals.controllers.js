@@ -8,7 +8,7 @@ export async function getRentals(req,res){
         JOIN customers
         ON rentals."customerId" = customers.id
         JOIN games
-        ON rentals."gameId" = 1
+        ON rentals."gameId" = games.id
         `)
         res.send(rentals.rows)
     } catch(err){
@@ -23,7 +23,8 @@ export async function postRentals(req,res){
     try{
         const games = await db.query(`SELECT * FROM games WHERE games.id = $1`, [gameId])
         if(games.rowCount===0) return res.sendStatus(400)
-        if(games.rows[0].stockTotal===0) return res.sendStatus(400)
+        const rentalsGames = await db.query(`SELECT * FROM rentals JOIN games ON rentals."gameId" = $1 WHERE rentals."gameId" = games.id`, [gameId])
+        if(games.rows[0].stockTotal<rentalsGames.rowCount) return res.sendStatus(400)
         const originalPrice = daysRented * games.rows[0].pricePerDay
         const sameuser = await db.query(`SELECT * FROM customers WHERE customers.id = $1`, [customerId])
         if(sameuser.rowCount===0) return res.sendStatus(400)
